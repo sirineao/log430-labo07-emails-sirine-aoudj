@@ -1,0 +1,40 @@
+name: CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    environment: labo07
+
+    steps:
+      - name: Checkout depot
+        uses: actions/checkout@v4
+        with:
+          clean: false
+
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          KAFKA_HOST=${{ secrets.KAFKA_HOST }}
+          KAFKA_TOPIC=${{ secrets.KAFKA_TOPIC }}
+          KAFKA_GROUP_ID=${{ secrets.KAFKA_GROUP_ID }}
+          KAFKA_AUTO_OFFSET_RESET=${{ secrets.KAFKA_AUTO_OFFSET_RESET }}
+          OUTPUT_DIR=${{ secrets.OUTPUT_DIR }}
+          LOG_LEVEL=${{ secrets.LOG_LEVEL }}
+          ENABLE_HTML_OUTPUT=${{ secrets.ENABLE_HTML_OUTPUT }}
+          EOF
+
+      - name: Create Docker network
+        run: docker network create labo05-network || true
+
+      - name: Deploy with Docker Compose
+        run: |
+          docker compose down
+          docker compose build
+          docker compose up -d
+
+      - name: Verify containers
+        run: docker ps

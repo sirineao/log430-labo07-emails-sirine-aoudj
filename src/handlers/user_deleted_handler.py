@@ -24,9 +24,31 @@ class UserDeletedHandler(EventHandler):
     
     def handle(self, event_data: Dict[str, Any]) -> None:
         """Create an HTML email based on user deletion data"""
-        # TODO: implémentation basée sur UserCreated
-        user_id = 0
-        name = "Nobody"
-        filename = "None"
-        self.logger.debug(event_data)
-        self.logger.debug(f"Courriel HTML généré à {name} (ID: {user_id}) at {filename}")
+        user_id = event_data.get('id')
+        name = event_data.get('name')
+        email = event_data.get('email')
+        datetime = event_data.get('datetime')
+        user_type = event_data.get('user_type', 'client')
+
+        template_mapping = {
+            'client': 'goodbye_client_template.html',
+            'employee': 'goodbye_employee_template.html',
+            'manager': 'goodbye_manager_template.html'
+        }
+        
+        template_name = template_mapping.get(user_type, 'goodbye_client_template.html')
+
+        current_file = Path(__file__)
+        project_root = current_file.parent.parent   
+        with open(project_root / "templates" / template_name, 'r') as file:
+            html_content = file.read()
+            html_content = html_content.replace("{{user_id}}", str(user_id))
+            html_content = html_content.replace("{{name}}", name)
+            html_content = html_content.replace("{{email}}", email)
+            html_content = html_content.replace("{{deletion_date}}", datetime)
+        
+        filename = os.path.join(self.output_dir, f"goodbye_{user_id}.html")
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(html_content)
+        
+        self.logger.debug(f"Courriel HTML généré à {name} (ID: {user_id}), type: {user_type}, {filename}")

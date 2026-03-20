@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Create .env file
+        run: |
+          echo "KAFKA_HOST=kafka:9092" >> .env
+          echo "KAFKA_TOPIC=user-events" >> .env
+          echo "KAFKA_GROUP_ID=coolriel" >> .env
+          echo "KAFKA_AUTO_OFFSET_RESET=latest" >> .env
+          echo "OUTPUT_DIR=output" >> .env
+          echo "LOG_LEVEL=INFO" >> .env
+          echo "ENABLE_HTML_OUTPUT=true" >> .env

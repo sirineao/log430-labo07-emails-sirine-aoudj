@@ -5,6 +5,7 @@ Auteurs : Gabriel C. Ullmann, Fabio Petrillo, 2025
 """
 
 import json
+import os
 from logger import Logger
 from typing import Optional
 from kafka import KafkaConsumer
@@ -18,21 +19,47 @@ class UserEventHistoryConsumer:
         bootstrap_servers: str,
         topic: str,
         group_id: str,
-        registry: HandlerRegistry
+        registry: HandlerRegistry,
+        output_dir: str = "output"
     ):
-        # TODO: définir les paramètres corrects
+        self.bootstrap_servers = bootstrap_servers
+        self.topic = topic
+        self.group_id = group_id
+        self.registry = registry
+        self.output_dir = output_dir
+        self.auto_offset_reset = "earliest"
         self.consumer: Optional[KafkaConsumer] = None
         self.logger = Logger.get_instance("UserEventHistoryConsumer")
+        os.makedirs(output_dir, exist_ok=True)
     
     def start(self) -> None:
         """Start consuming messages from Kafka"""
         self.logger.info(f"Démarrer un consommateur : {self.group_id}")
         
         try:
-            # TODO: implémentation basée sur UserEventConsumer
-            # TODO: enregistrez les événements dans un fichier JSON
-            self.consumer = None
-            self.logger.debug("Aucune implémentation!")            
+            self.consumer = KafkaConsumer(
+                self.topic,
+                bootstrap_servers=self.bootstrap_servers,
+                group_id=self.group_id,
+                auto_offset_reset=self.auto_offset_reset,
+                value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+                enable_auto_commit=True,
+                consumer_timeout_ms=5000
+            )
+            
+            history_file = os.path.join(self.output_dir, "user_events_history.jsonl")
+            
+            with open(history_file, 'w', encoding='utf-8') as f:
+                event_count = 0
+                for message in self.consumer:
+                    event_data = message.value
+                    json_line = json.dumps(event_data, ensure_ascii=False)
+                    f.write(json_line + '\n')
+                    event_count += 1
+                    self.logger.debug(f"Événement enregistré: {event_data.get('event')} (ID: {event_data.get('id')})")
+            
+            self.logger.info(f"Historique des événements enregistré dans {history_file}. Total: {event_count} événements.")
+            
         except Exception as e:
             self.logger.error(f"Erreur: {e}", exc_info=True)
         finally:
