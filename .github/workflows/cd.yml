@@ -18,13 +18,13 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env << EOF
-          KAFKA_HOST=${{ secrets.KAFKA_HOST }}
-          KAFKA_TOPIC=${{ secrets.KAFKA_TOPIC }}
-          KAFKA_GROUP_ID=${{ secrets.KAFKA_GROUP_ID }}
-          KAFKA_AUTO_OFFSET_RESET=${{ secrets.KAFKA_AUTO_OFFSET_RESET || 'earliest' }}
-          OUTPUT_DIR=${{ secrets.OUTPUT_DIR || 'output' }}
-          LOG_LEVEL=${{ secrets.LOG_LEVEL || 'INFO' }}
-          ENABLE_HTML_OUTPUT=${{ secrets.ENABLE_HTML_OUTPUT || 'true' }}
+          KAFKA_HOST=kafka:9092
+          KAFKA_TOPIC=user-events
+          KAFKA_GROUP_ID=coolriel
+          KAFKA_AUTO_OFFSET_RESET=latest
+          OUTPUT_DIR=output
+          LOG_LEVEL=INFO
+          ENABLE_HTML_OUTPUT=true
           EOF
 
       - name: Create Docker network
