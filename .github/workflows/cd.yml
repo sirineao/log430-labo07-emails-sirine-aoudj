@@ -21,10 +21,10 @@ jobs:
           KAFKA_HOST=${{ secrets.KAFKA_HOST }}
           KAFKA_TOPIC=${{ secrets.KAFKA_TOPIC }}
           KAFKA_GROUP_ID=${{ secrets.KAFKA_GROUP_ID }}
-          KAFKA_AUTO_OFFSET_RESET=${{ secrets.KAFKA_AUTO_OFFSET_RESET }}
-          OUTPUT_DIR=${{ secrets.OUTPUT_DIR }}
-          LOG_LEVEL=${{ secrets.LOG_LEVEL }}
-          ENABLE_HTML_OUTPUT=${{ secrets.ENABLE_HTML_OUTPUT }}
+          KAFKA_AUTO_OFFSET_RESET=${{ secrets.KAFKA_AUTO_OFFSET_RESET || 'earliest' }}
+          OUTPUT_DIR=${{ secrets.OUTPUT_DIR || 'output' }}
+          LOG_LEVEL=${{ secrets.LOG_LEVEL || 'INFO' }}
+          ENABLE_HTML_OUTPUT=${{ secrets.ENABLE_HTML_OUTPUT || 'true' }}
           EOF
 
       - name: Create Docker network

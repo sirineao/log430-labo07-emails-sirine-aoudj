@@ -17,9 +17,10 @@ KAFKA_GROUP_ID = os.getenv("KAFKA_GROUP_ID")
 KAFKA_AUTO_OFFSET_RESET = os.getenv("KAFKA_AUTO_OFFSET_RESET")
 
 # Coolriel Configuration
-OUTPUT_DIR = os.getenv("OUTPUT_DIR")
-LOG_LEVEL = os.getenv("LOG_LEVEL")
+OUTPUT_DIR = os.getenv("OUTPUT_DIR", "output")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+ENABLE_HTML_OUTPUT = os.getenv("ENABLE_HTML_OUTPUT", "true").lower() == "true"
 
-for env_variable in ["KAFKA_HOST", "KAFKA_TOPIC", "KAFKA_GROUP_ID", "KAFKA_AUTO_OFFSET_RESET", "OUTPUT_DIR", "LOG_LEVEL"]:
+for env_variable in ["KAFKA_HOST", "KAFKA_TOPIC", "KAFKA_GROUP_ID", "KAFKA_AUTO_OFFSET_RESET"]:
     if globals()[env_variable] is None:
         raise EnvironmentError(f"Variable {env_variable} n'était pas trouvé dans votre fichier .env.")
